@@ -754,9 +754,25 @@ const App = (() => {
   };
 })();
 
+// Make sure App is globally accessible
+console.log('🔧 Setting window.App...');
+window.App = App;
+console.log('✅ window.App is now:', typeof window.App);
+console.log('📋 Available methods:', Object.keys(window.App));
+
 // ── Initialization ──
 window.addEventListener('DOMContentLoaded', () => {
   console.log('✅ DOM loaded, initializing app...');
+  console.log('📦 App object exists:', typeof App !== 'undefined');
+  console.log('📦 window.App exists:', typeof window.App !== 'undefined');
+  
+  if (typeof App === 'undefined') {
+    console.error('❌ CRITICAL: App object is not defined!');
+    alert('ERROR: App object not found! Check console.');
+    return;
+  }
+  
+  console.log('📋 App methods:', Object.keys(App));
   
   // Load saved difficulty
   const savedDifficulty = localStorage.getItem('fws_difficulty') || 'medium';
