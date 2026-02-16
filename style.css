@@ -32,7 +32,7 @@ html, body {
 }
 
 #app {
-  height: 100dhv;
+  height: 100dvh;
   width: 100%;
   position: relative;
   overflow: hidden;
@@ -594,7 +594,7 @@ html, body {
   stroke: var(--fire);
   stroke-width: 10;
   stroke-linecap: round;
-  
+}
 
 .countdown-number {
   position: absolute;
