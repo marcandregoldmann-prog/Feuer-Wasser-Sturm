@@ -183,44 +183,4 @@
 
   </div>
 
-  <!-- DEBUG CONSOLE (remove after testing) -->
-  <div id="debug-console" style="position: fixed; bottom: 0; left: 0; right: 0; background: #000; color: #0f0; padding: 10px; font-family: monospace; font-size: 10px; max-height: 150px; overflow-y: auto; z-index: 9999; border-top: 2px solid #0f0;">
-    <div id="debug-log"></div>
-  </div>
-
-  <script>
-    // Debug logger
-    const debugLog = document.getElementById('debug-log');
-    const originalLog = console.log;
-    const originalError = console.error;
-    
-    function addDebug(msg, isError) {
-      const line = document.createElement('div');
-      line.textContent = msg;
-      line.style.color = isError ? '#f00' : '#0f0';
-      debugLog.appendChild(line);
-      debugLog.scrollTop = debugLog.scrollHeight;
-    }
-    
-    console.log = function(...args) {
-      originalLog.apply(console, args);
-      addDebug(args.join(' '), false);
-    };
-    
-    console.error = function(...args) {
-      originalError.apply(console, args);
-      addDebug('ERROR: ' + args.join(' '), true);
-    };
-    
-    // Log when buttons are clicked
-    document.addEventListener('click', function(e) {
-      if (e.target.tagName === 'BUTTON') {
-        console.log('🖱️ Button clicked:', e.target.textContent.substring(0, 30));
-        console.log('🎯 onclick attribute:', e.target.getAttribute('onclick'));
-      }
-    }, true);
-  </script>
-
-  <script src="app.js"></script>
-</body>
-</html>
+  
