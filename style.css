@@ -594,11 +594,7 @@ html, body {
   stroke: var(--fire);
   stroke-width: 10;
   stroke-linecap: round;
-  stroke-dasharray: 565.48;
-  stroke-dashoffset: 0;
-  transition: stroke 0.3s ease;
-  filter: drop-shadow(0 0 8px currentColor);
-}
+  
 
 .countdown-number {
   position: absolute;
@@ -620,11 +616,7 @@ html, body {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.1); }
 }
-  stroke-dasharray: 565.48;
-  stroke-dashoffset: 0;
-  transition: stroke 0.3s ease;
-  filter: drop-shadow(0 0 8px currentColor);
-}
+  
 
 /* Command Display */
 .command-display {
