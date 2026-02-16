@@ -1,5 +1,7 @@
 /* ========== FEUER WASSER STURM – App Logic ========== */
 
+console.log('🔥💧🌪️ Feuer Wasser Sturm wird geladen...');
+
 const App = (() => {
   // ── State ──
   let mode = null;           // 'toddler' | 'chaos'
@@ -754,8 +756,11 @@ const App = (() => {
 
 // ── Initialization ──
 window.addEventListener('DOMContentLoaded', () => {
+  console.log('✅ DOM loaded, initializing app...');
+  
   // Load saved difficulty
   const savedDifficulty = localStorage.getItem('fws_difficulty') || 'medium';
+  console.log('📊 Difficulty:', savedDifficulty);
   App.setDifficulty(savedDifficulty);
   
   // Load sound settings
@@ -763,11 +768,15 @@ window.addEventListener('DOMContentLoaded', () => {
   if (savedSound === '0') {
     App.toggleSound();
   }
+  console.log('🔊 Sound enabled:', savedSound !== '0');
   
   const savedDrum = localStorage.getItem('fws_drum');
   if (savedDrum === '0') {
     App.toggleDrum();
   }
+  console.log('🥁 Drum enabled:', savedDrum !== '0');
+  
+  console.log('🎮 App ready!');
 });
 
 // ── Service Worker Registration ──

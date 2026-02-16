@@ -1,59 +1,63 @@
-const CACHE_NAME = 'fws-cache-v4';
+const CACHE_NAME = 'fws-cache-v3';
 const ASSETS = [
-  '/Feuer-Wasser-Sturm/',
-  '/Feuer-Wasser-Sturm/index.html',
-  '/Feuer-Wasser-Sturm/style.css',
-  '/Feuer-Wasser-Sturm/app.js',
-  '/Feuer-Wasser-Sturm/manifest.json',
-  '/Feuer-Wasser-Sturm/icons/icon-192.png',
-  '/Feuer-Wasser-Sturm/icons/icon-512.png'
+  './',
+  './index.html',
+  './style.css',
+  './app.js',
+  './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
-// Install: cache all assets
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(ASSETS))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache =>
+      // Cache each asset individually so one failure doesn't break everything
+      Promise.allSettled(
+        ASSETS.map(url => cache.add(url).catch(err => console.warn('Cache skip:', url, err)))
+      )
+    )
   );
+  self.skipWaiting();
 });
 
-// Activate: clean old caches
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys()
-      .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      ))
-      .then(() => self.clients.claim())
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    )
   );
+  self.clients.claim();
 });
 
-// Fetch: cache-first, then network, offline fallback
 self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
+  const request = event.request;
+
+  // Only handle same-origin GET requests
+  if (request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(event.request)
-      .then(cachedResponse => {
-        if (cachedResponse) {
-          return cachedResponse;
+    caches.match(request).then(cached => {
+      if (cached) return cached;
+
+      // For navigation requests, try to serve index.html from cache
+      if (request.mode === 'navigate') {
+        return caches.match('./index.html').then(index => index || fetch(request));
+      }
+
+      return fetch(request).then(response => {
+        // Cache successful responses for future offline use
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
         }
-        return fetch(event.request)
-          .then(networkResponse => {
-            if (networkResponse && networkResponse.ok) {
-              const clone = networkResponse.clone();
-              caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-            }
-            return networkResponse;
-          })
-          .catch(() => {
-            // Offline fallback for navigation requests
-            if (event.request.mode === 'navigate') {
-              return caches.match('/Feuer-Wasser-Sturm/index.html');
-            }
-            return new Response('Offline', { status: 503, statusText: 'Offline' });
-          });
-      })
+        return response;
+      });
+    }).catch(() => {
+      // Offline fallback for navigation
+      if (request.mode === 'navigate') {
+        return caches.match('./index.html');
+      }
+    })
   );
 });

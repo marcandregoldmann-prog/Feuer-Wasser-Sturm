@@ -2,40 +2,27 @@
   "name": "Feuer Wasser Sturm",
   "short_name": "FWS",
   "description": "Das ultimative Bewegungsspiel für Kinder und Gruppen!",
-  "start_url": "/Feuer-Wasser-Sturm/index.html",
-  "scope": "/Feuer-Wasser-Sturm/",
+  "start_url": "/Feuer-Wasser-Sturm/",
   "id": "/Feuer-Wasser-Sturm/",
+  "scope": "/Feuer-Wasser-Sturm/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#1a1a2e",
   "theme_color": "#e94560",
   "icons": [
     {
-      "src": "/Feuer-Wasser-Sturm/icons/icon-192.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "/Feuer-Wasser-Sturm/icons/icon-512.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/Feuer-Wasser-Sturm/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/Feuer-Wasser-Sturm/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "categories": ["games", "entertainment"],
-  "lang": "de",
-  "prefer_related_applications": false
+  "lang": "de"
 }
