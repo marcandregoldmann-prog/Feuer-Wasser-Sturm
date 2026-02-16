@@ -40,7 +40,7 @@ html, body {
 
 /* ========== SCREENS ========== */
 .screen {
-  position: absolute;
+  position: fixed;
   inset: 0;
   display: flex;
   flex-direction: column;
