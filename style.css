@@ -22,7 +22,9 @@
 
 html, body {
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
   font-family: var(--font-body);
   background: var(--bg-dark);
   color: var(--text);
