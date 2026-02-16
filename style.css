@@ -47,7 +47,7 @@ html, body {
   flex-direction: column;
   opacity: 0;
   visibility: hidden;
-  transform: scale(0.95);
+  transform: none;
   transition: 
     opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1),
     visibility 0.5s cubic-bezier(0.4, 0, 0.2, 1),
@@ -59,7 +59,7 @@ html, body {
 .screen.active {
   opacity: 1;
   visibility: visible;
-  transform: scale(1);
+  transform: none;
   z-index: 1;
 }
 
