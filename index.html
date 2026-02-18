@@ -7,8 +7,8 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="icons/icon-192.png">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
   <title>Feuer Wasser Sturm</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Lilita+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -44,6 +44,12 @@
             <span class="btn-label">Chaosmodus</span>
             <span class="btn-desc">Eliminierung · Letzte/r gewinnt</span>
           </button>
+        </div>
+        <div class="speed-selector">
+          <span class="speed-label">Tempo</span>
+          <button id="speed-slow" class="btn btn-speed" onclick="App.setSpeed('slow')" title="Langsam">🐢</button>
+          <button id="speed-normal" class="btn btn-speed" onclick="App.setSpeed('normal')" title="Normal">⚡</button>
+          <button id="speed-fast" class="btn btn-speed" onclick="App.setSpeed('fast')" title="Schnell">🚀</button>
         </div>
         <div class="home-footer">
           <button class="btn btn-settings" onclick="App.showSettings()">
@@ -121,7 +127,10 @@
         <div class="trophy">🏆</div>
         <h2 class="winner-label">Gewonnen!</h2>
         <p id="winner-name" class="winner-name"></p>
-        <button class="btn btn-restart" onclick="App.goHome()">🏠 Zum Hauptmenü</button>
+        <div class="winner-actions">
+          <button id="btn-play-again" class="btn btn-play-again hidden" onclick="App.playAgain()">🔄 Nochmal spielen</button>
+          <button class="btn btn-restart" onclick="App.goHome()">🏠 Hauptmenü</button>
+        </div>
       </div>
     </section>
 
@@ -131,6 +140,7 @@
         <button class="btn btn-back" onclick="App.goHome()">← Zurück</button>
         <h2 class="settings-title">⚙️ Befehle</h2>
         <div id="commands-list" class="commands-list"></div>
+        <button class="btn btn-reset-defaults" onclick="App.resetCommands()">↺ Standard wiederherstellen</button>
         <h3 class="settings-subtitle">Neuen Befehl hinzufügen</h3>
         <div class="add-command-form">
           <input type="text" id="cmd-name" class="input-cmd" placeholder="Befehl (z.B. Tornado)" maxlength="20" autocomplete="off">

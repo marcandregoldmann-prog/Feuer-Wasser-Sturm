@@ -6,10 +6,13 @@ const App = (() => {
   let players = [];          // { name, alive }
   let soundEnabled = true;
   let drumEnabled = true;
+  let speedSetting = 'normal'; // 'slow' | 'normal' | 'fast'
+  let round = 0;
   let gameRunning = false;
   let timers = [];
   let animFrame = null;
   let drumInterval = null;
+  let waitingMsgInterval = null;
   let audioCtx = null;
 
   // ── Default commands ──
@@ -24,6 +27,23 @@ const App = (() => {
     { name: 'CD-Player',  action: 'Auf dem Boden drehen!',           emoji: '💿', color: '#a855f7', isDefault: true },
   ];
 
+  // ── Rotating waiting messages ──
+  const WAITING_MESSAGES = [
+    'Macht euch bereit!',
+    'Was kommt als nächstes?',
+    'Seid auf der Hut!',
+    'Konzentriert euch!',
+    'Gleich geht\'s los!',
+    'Aufgepasst!',
+    'Bleibt wachsam!',
+    'Jeden Moment …',
+    'Wer schafft es?',
+    'Bereit machen!',
+    'Augen auf!',
+    'Nicht ablenken lassen!',
+  ];
+  let waitingMsgIndex = 0;
+
   function getCommands() {
     const stored = localStorage.getItem('fws_commands');
     if (stored) {
@@ -34,6 +54,19 @@ const App = (() => {
 
   function saveCommands(cmds) {
     localStorage.setItem('fws_commands', JSON.stringify(cmds));
+  }
+
+  // ── Speed / Difficulty ──
+  function getSpeedMultiplier() {
+    return { slow: 1.6, normal: 1.0, fast: 0.6 }[speedSetting] || 1.0;
+  }
+
+  function setSpeed(s) {
+    speedSetting = s;
+    localStorage.setItem('fws_speed', s);
+    document.querySelectorAll('.btn-speed').forEach(b => b.classList.remove('btn-speed-active'));
+    const btn = document.getElementById('speed-' + s);
+    if (btn) btn.classList.add('btn-speed-active');
   }
 
   // ── Audio Context (lazy init on user gesture) ──
@@ -157,6 +190,46 @@ const App = (() => {
       clearTimeout(drumInterval);
       drumInterval = null;
     }
+  }
+
+  // ── Waiting messages ──
+  function startWaitingMessages() {
+    stopWaitingMessages();
+    const el = document.querySelector('.waiting-text');
+    if (!el) return;
+    waitingMsgIndex = Math.floor(Math.random() * WAITING_MESSAGES.length);
+    el.textContent = WAITING_MESSAGES[waitingMsgIndex];
+    waitingMsgInterval = setInterval(() => {
+      waitingMsgIndex = (waitingMsgIndex + 1) % WAITING_MESSAGES.length;
+      el.textContent = WAITING_MESSAGES[waitingMsgIndex];
+    }, 2500);
+  }
+
+  function stopWaitingMessages() {
+    if (waitingMsgInterval) {
+      clearInterval(waitingMsgInterval);
+      waitingMsgInterval = null;
+    }
+  }
+
+  // ── Haptic feedback ──
+  function vibrate(pattern) {
+    if ('vibrate' in navigator) {
+      try { navigator.vibrate(pattern); } catch(e) { /* ignore */ }
+    }
+  }
+
+  // ── Toast notification ──
+  function showToast(msg, color) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = msg;
+    if (color) toast.style.background = color;
+    document.getElementById('app').appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('toast-out');
+      setTimeout(() => toast.remove(), 400);
+    }, 1800);
   }
 
   // ── Speech with more energy ──
@@ -320,6 +393,12 @@ const App = (() => {
     renderCommandsList();
   }
 
+  function resetCommands() {
+    if (!confirm('Alle eigenen Befehle löschen und Standardbefehle wiederherstellen?')) return;
+    saveCommands([...DEFAULT_COMMANDS]);
+    renderCommandsList();
+  }
+
   // ── Chaos Setup ──
   function renderPlayerList() {
     const list = document.getElementById('player-list');
@@ -361,6 +440,10 @@ const App = (() => {
     const dp = localStorage.getItem('fws_drum');
     if (dp === '0') { drumEnabled = false; }
     updateDrumIcon();
+
+    // Load speed setting
+    const spd = localStorage.getItem('fws_speed') || 'normal';
+    setSpeed(spd);
   });
 
   // ── Game Common ──
@@ -370,6 +453,7 @@ const App = (() => {
     timers = [];
     if (animFrame) cancelAnimationFrame(animFrame);
     stopDrumLoop();
+    stopWaitingMessages();
     window.speechSynthesis && window.speechSynthesis.cancel();
     const screen = document.getElementById('screen-game');
     screen.style.backgroundColor = '';
@@ -425,8 +509,9 @@ const App = (() => {
     const display = document.getElementById('command-display');
     const ring    = document.getElementById('countdown-ring');
 
-    // Stop drum when command appears
+    // Stop drum and waiting messages when command appears
     stopDrumLoop();
+    stopWaitingMessages();
 
     ring.classList.add('hidden');
     waiting.classList.add('hidden');
@@ -445,6 +530,7 @@ const App = (() => {
     screen.classList.add('command-active');
 
     speak(cmd.name + '! ' + cmd.action, 'command');
+    vibrate([40, 30, 80]);
   }
 
   function hideCommand() {
@@ -459,10 +545,12 @@ const App = (() => {
     document.getElementById('command-display').classList.add('hidden');
     document.getElementById('countdown-ring').classList.add('hidden');
     document.getElementById('fake-countdown-display').classList.add('hidden');
+    startWaitingMessages();
   }
 
   // ── Toddler Mode ──
   function startToddler() {
+    round = 0;
     showScreen('screen-game');
     const screen = document.getElementById('screen-game');
     screen.classList.add('toddler-mode');
@@ -475,11 +563,15 @@ const App = (() => {
 
   function toddlerLoop() {
     if (!gameRunning) return;
+
+    round++;
+    document.getElementById('players-remaining').textContent = `Runde ${round}`;
+
     showWaiting();
     hideCommand();
 
-    // Longer wait for toddlers: 12–20 seconds
-    const waitSeconds = rand(12, 20);
+    // Longer wait for toddlers: 12–20 seconds, scaled by speed
+    const waitSeconds = rand(12, 20) * getSpeedMultiplier();
     const waitMs = waitSeconds * 1000;
 
     // Start drum loop during waiting phase
@@ -491,8 +583,8 @@ const App = (() => {
       const cmd = pickCommand();
       showCommand(cmd);
 
-      // Longer reaction countdown for toddlers: 8 seconds
-      showCountdown(8, cmd.color, () => {
+      // Reaction countdown for toddlers: 8 seconds, scaled by speed
+      showCountdown(8 * getSpeedMultiplier(), cmd.color, () => {
         if (!gameRunning) return;
         hideCommand();
         toddlerLoop();
@@ -532,7 +624,7 @@ const App = (() => {
       return;
     }
 
-    const waitSeconds = rand(3, 12);
+    const waitSeconds = rand(3, 12) * getSpeedMultiplier();
     const waitMs = waitSeconds * 1000;
 
     // Drum loop during chaos waiting too
@@ -567,7 +659,7 @@ const App = (() => {
     }
 
     const cmd = pickCommand();
-    const reactionTime = rand(2, 4);
+    const reactionTime = rand(2, 4) * getSpeedMultiplier();
     showCommand(cmd);
 
     showCountdown(reactionTime, cmd.color, () => {
@@ -588,6 +680,7 @@ const App = (() => {
   function showFakeCountdown(onDone) {
     const fake = document.getElementById('fake-countdown-display');
     const waiting = document.getElementById('waiting-display');
+    stopWaitingMessages();
     waiting.classList.add('hidden');
     fake.classList.remove('hidden');
 
@@ -595,6 +688,7 @@ const App = (() => {
     screen.classList.add('screen-shake');
 
     speak('Achtung!', 'fake');
+    vibrate([20, 10, 20]);
 
     const t = setTimeout(() => {
       if (!gameRunning) return;
@@ -622,6 +716,8 @@ const App = (() => {
     document.getElementById('elimination-panel').classList.add('hidden');
 
     speak(players[index].name + ' ist raus!', 'default');
+    showToast(`${players[index].name} ❌ ausgeschieden!`, 'rgba(220,38,38,0.92)');
+    vibrate([60, 30, 60, 30, 120]);
 
     const alive = players.filter(p => p.alive);
     if (alive.length <= 1) {
@@ -641,9 +737,22 @@ const App = (() => {
   function showWinner(name) {
     stopGame();
     document.getElementById('winner-name').textContent = name;
+
+    // Show Play Again only for chaos mode
+    const playAgainBtn = document.getElementById('btn-play-again');
+    if (playAgainBtn) {
+      playAgainBtn.classList.toggle('hidden', mode !== 'chaos');
+    }
+
     showScreen('screen-winner');
     speak(name + ' hat gewonnen! Herzlichen Glückwunsch!', 'winner');
     spawnConfetti();
+  }
+
+  function playAgain() {
+    // Restart chaos mode with the same players
+    players.forEach(p => p.alive = true);
+    startChaos();
   }
 
   function spawnConfetti() {
@@ -685,16 +794,19 @@ const App = (() => {
     showSettings,
     toggleSound,
     toggleDrum,
+    setSpeed,
     addPlayer,
     removePlayer,
     startChaos,
     addCommand,
     removeCommand,
+    resetCommands,
     eliminatePlayer,
     skipElimination,
     confirmQuit,
     cancelQuit,
     quitGame,
+    playAgain,
   };
 })();
 
