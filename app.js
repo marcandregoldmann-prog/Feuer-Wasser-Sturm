@@ -306,6 +306,8 @@ const App = (() => {
     soundEnabled = !soundEnabled;
     localStorage.setItem('fws_sound', soundEnabled ? '1' : '0');
     document.getElementById('sound-icon').textContent = soundEnabled ? '🔊' : '🔇';
+    const btn = document.getElementById('btn-sound');
+    if (btn) btn.classList.toggle('btn-disabled', !soundEnabled);
   }
 
   function toggleDrum() {
@@ -436,7 +438,12 @@ const App = (() => {
     }
     // Load preferences
     const sp = localStorage.getItem('fws_sound');
-    if (sp === '0') { soundEnabled = false; document.getElementById('sound-icon').textContent = '🔇'; }
+    if (sp === '0') {
+      soundEnabled = false;
+      document.getElementById('sound-icon').textContent = '🔇';
+      const btn = document.getElementById('btn-sound');
+      if (btn) btn.classList.add('btn-disabled');
+    }
     const dp = localStorage.getItem('fws_drum');
     if (dp === '0') { drumEnabled = false; }
     updateDrumIcon();

@@ -10,7 +10,7 @@
   <link rel="icon" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
   <title>Feuer Wasser Sturm</title>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Lilita+One&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -34,12 +34,12 @@
           <div class="logo-emoji">🔥💧🌪️</div>
         </div>
         <div class="mode-buttons">
-          <button class="btn btn-mode btn-toddler" onclick="App.selectMode('toddler')">
+          <button class="btn btn-mode btn-toddler neon-btn btn-orange" onclick="App.selectMode('toddler')">
             <span class="btn-icon">🧒</span>
             <span class="btn-label">Kleinkindmodus</span>
             <span class="btn-desc">Endlosspiel · Kein Ausscheiden</span>
           </button>
-          <button class="btn btn-mode btn-chaos" onclick="App.selectMode('chaos')">
+          <button class="btn btn-mode btn-chaos neon-btn btn-pink" onclick="App.selectMode('chaos')">
             <span class="btn-icon">🤪</span>
             <span class="btn-label">Chaosmodus</span>
             <span class="btn-desc">Eliminierung · Letzte/r gewinnt</span>
@@ -52,10 +52,10 @@
           <button id="speed-fast" class="btn btn-speed" onclick="App.setSpeed('fast')" title="Schnell">🚀</button>
         </div>
         <div class="home-footer">
-          <button class="btn btn-settings" onclick="App.showSettings()">
+          <button class="btn btn-settings neon-btn btn-blue" onclick="App.showSettings()">
             ⚙️ Befehle bearbeiten
           </button>
-          <button class="btn btn-sound-toggle" onclick="App.toggleSound()">
+          <button id="btn-sound" class="btn btn-sound-toggle" onclick="App.toggleSound()">
             <span id="sound-icon">🔊</span>
           </button>
           <button class="btn btn-sound-toggle btn-drum-toggle" onclick="App.toggleDrum()">
